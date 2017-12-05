@@ -1,8 +1,8 @@
 (ns status-im.chat.models.unviewed-messages)
 
-(defn load-unviewed-messages [db raw-unviewed-messages]
+(defn load-unviewed-messages [db unviewed-messages]
   (assoc db :unviewed-messages
-         (->> raw-unviewed-messages
+         (->> unviewed-messages
               (group-by :chat-id)
               (map (fn [[id messages]]
                      [id {:messages-ids (map :message-id messages)

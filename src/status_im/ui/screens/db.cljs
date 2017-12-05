@@ -155,8 +155,7 @@
                   :chat/layout-height
                   :chat/expandable-view-height-to-value 
                   :chat/loading-allowed
-                  :chat/message-data
-                  :chat/message-id->transaction-id
+                  :chat/message-data 
                   :chat/message-status
                   :chat/unviewed-messages
                   :chat/selected-participants
@@ -166,7 +165,6 @@
                   :chat/confirmation-code-sms-listener
                   :chat/messages 
                   :chat/loaded-chats 
-                  :chat/raw-unviewed-messages
                   :chat/bot-db
                   :chat/geolocation
                   :commands/access-scope->commands-responses
