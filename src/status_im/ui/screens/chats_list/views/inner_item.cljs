@@ -80,12 +80,12 @@
      (time/to-short-str timestamp)]))
 
 (defview unviewed-indicator [chat-id]
-  (letsubs [unviewed-messages [:unviewed-messages-count chat-id]]
-    (when (pos? unviewed-messages)
+  (letsubs [unviewed-messages-count [:unviewed-messages-count chat-id]]
+    (when (pos? unviewed-messages-count)
       [view st/new-messages-container
        [text {:style st/new-messages-text
               :font  :medium}
-        unviewed-messages]])))
+        unviewed-messages-count]])))
 
 (defn options-btn [chat-id]
   (let [options [{:value        #(dispatch [:remove-chat chat-id])

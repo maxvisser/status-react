@@ -214,7 +214,7 @@
     (let [{:keys [web3 current-public-key chats]
            :contacts/keys [contacts]} db
           {:keys [group-chat public?]} (get chats chat-id)]
-      (cond-> {:db (unviewed-messages-model/remove-unviewed-messages db chat-id)
+      (cond-> {:db (unviewed-messages-model/remove-unviewed-message db chat-id message-id)
                :update-message {:message-id     message-id
                                 :message-status :seen}}
         (and (not (get-in contacts [chat-id] :dapp?))

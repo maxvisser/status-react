@@ -182,7 +182,7 @@
 (reg-sub
   :unviewed-messages-count
   (fn [db [_ chat-id]]
-    (get-in db [:unviewed-messages chat-id :count])))
+    (count (get-in db [:unviewed-messages chat-id]))))
 
 (reg-sub
   :web-view-extra-js

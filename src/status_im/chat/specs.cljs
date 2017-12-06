@@ -11,8 +11,9 @@
 (s/def :chat/layout-height (s/nilable number?))                             ; height of chat's view layout
 (s/def :chat/expandable-view-height-to-value (s/nilable number?))
 (s/def :chat/loading-allowed (s/nilable boolean?))                          ; allow to load more messages
-(s/def :chat/message-data (s/nilable map?))
-(s/def :chat/message-status (s/nilable map?))
+(s/def :chat/message-by-id (s/nilable map?))                                ; everything associated to messaged, indexed by id
+(s/def :chat/message-data (s/nilable map?))                                 ; TODO janherich: remove later
+(s/def :chat/message-status (s/nilable map?))                               ; TODO janherich: remove later
 (s/def :chat/unviewed-messages (s/nilable map?))
 (s/def :chat/selected-participants (s/nilable set?))
 (s/def :chat/chat-loaded-callbacks (s/nilable map?))

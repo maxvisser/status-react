@@ -2,17 +2,13 @@
 
 (defn load-unviewed-messages [db unviewed-messages]
   (assoc db :unviewed-messages
-         (->> unviewed-messages
-              (group-by :chat-id)
-              (map (fn [[id messages]]
-                     [id {:messages-ids (map :message-id messages)
-                          :count        (count messages)}]))
-              (into {}))))
+         (into {}
+               (map (fn [[id messages]]
+                     [id (into #{} (map :message-id) messages)]))
+               (group-by :chat-id unviewed-messages))))
 
-(defn add-unviewed-message [db chat-id message-id]
-  (-> db
-      (update-in [:unviewed-messages chat-id :messages-ids] conj message-id)
-      (update-in [:unviewed-messages chat-id :count] inc)))
+(defn add-unviewed-message [db chat-id message-id] 
+  (update-in db [:unviewed-messages chat-id] conj message-id))
 
-(defn remove-unviewed-messages [db chat-id]
-  (update db :unviewed-messages dissoc chat-id))
+(defn remove-unviewed-message [db chat-id message-id]
+  (update-in db [:unviewed-messages chat-id] disj message-id))
