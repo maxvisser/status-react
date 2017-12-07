@@ -80,8 +80,7 @@
                     (add-message-color contact-by-identity)
                     (assoc :group-chat group-chat)
                     (assoc :messages-count messages-count)
-                    (assoc :index index)
-                    (assoc :last-message (= (js/parseInt index) (dec messages-count)))
+                    (assoc :index index) 
                     (assoc :last-outgoing? last-outgoing?))]
     (list-item [chat-message message])))
 

@@ -53,13 +53,6 @@
        (filter #(= (:content-type %) constants/content-type-log-message))
        (map #(select-keys % [:content :timestamp]))))
 
-(defn get-last-message
-  [chat-id]
-  (if-let [{:keys [content-type] :as message} (data-store/get-last-message chat-id)]
-    (if (command-type? content-type)
-      (update message :content reader/read-string)
-      message)))
-
 (defn get-last-outgoing
   [chat-id number-of-messages]
   (data-store/get-by-fields {:chat-id  chat-id

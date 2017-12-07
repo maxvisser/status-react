@@ -44,10 +44,8 @@
     (:ref (get available-commands-responses response-name))))
 
 (defn add-message
-  [{:keys [db message-exists? get-last-stored-message pop-up-chat?
-           get-last-clock-value now random-id] :as cofx}
-   {:keys [from group-id chat-id content-type content
-           message-id timestamp clock-value]
+  [{:keys [db message-exists? pop-up-chat? get-last-clock-value now random-id] :as cofx}
+   {:keys [from group-id chat-id content-type content message-id timestamp clock-value]
     :as   message
     :or   {clock-value 0}}]
   (let [{:keys [access-scope->commands-responses] :contacts/keys [contacts]} db
@@ -67,9 +65,7 @@
                                (model/add-chat cofx chat-identifier))
             command-request? (= content-type const/content-type-command-request)
             command          (:command content)
-            enriched-message (cond-> (assoc (chat-utils/check-author-direction
-                                             (get-last-stored-message chat-identifier)
-                                             message)
+            enriched-message (cond-> (assoc (chat-utils/check-author-direction db chat-identifier message)
                                             :chat-id chat-identifier
                                             :timestamp (or timestamp now)
                                             :clock-value (clocks/receive
@@ -85,8 +81,7 @@
             update-db-fx       #(-> %
                                     (chat-utils/add-message-to-db chat-identifier chat-identifier enriched-message
                                                                   (:new? enriched-message))
-                                    (unviewed-messages-model/add-unviewed-message chat-identifier message-id)
-                                    (assoc-in [:chats chat-identifier :last-message] enriched-message))]
+                                    (unviewed-messages-model/add-unviewed-message chat-identifier message-id))]
         (cond-> (-> fx
                     (update :db update-db-fx)
                     (assoc :save-message (dissoc enriched-message :new?)))
@@ -100,9 +95,9 @@
       {:db db})))
 
 (def ^:private receive-interceptors
-  [(re-frame/inject-cofx :message-exists?) (re-frame/inject-cofx :get-last-stored-message)
-   (re-frame/inject-cofx :pop-up-chat?) (re-frame/inject-cofx :get-last-clock-value)
-   (re-frame/inject-cofx :random-id) (re-frame/inject-cofx :get-stored-chat) re-frame/trim-v])
+  [(re-frame/inject-cofx :message-exists?) (re-frame/inject-cofx :pop-up-chat?)
+   (re-frame/inject-cofx :get-last-clock-value) (re-frame/inject-cofx :random-id)
+   (re-frame/inject-cofx :get-stored-chat) re-frame/trim-v])
 
 (handlers/register-handler-fx
   :received-protocol-message!

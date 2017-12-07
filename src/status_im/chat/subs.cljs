@@ -208,8 +208,8 @@
   :get-last-message
   :<- [:chats]
   (fn [chats [_ chat-id]]
-    (let [{:keys [last-message messages]} (get chats chat-id)]
-      (->> (conj messages last-message)
+    (let [{:keys [messages]} (get chats chat-id)]
+      (->> messages
            (sort-by :clock-value >)
            (filter :show?)
            first))))
