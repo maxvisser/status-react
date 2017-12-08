@@ -110,4 +110,4 @@
  [(re-frame/inject-cofx :random-id-seq) re-frame/trim-v]
  (fn [{:keys [random-id-seq]} [command]]
    (when-let [messages (console-respond-command-messages command random-id-seq)]
-     {:dispatch-n [[:chat-received-message/add messages]]})))
+     {:dispatch [:chat-received-message/add messages]})))
