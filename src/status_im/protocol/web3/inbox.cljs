@@ -14,6 +14,9 @@
 ;; TODO(oskarth): Hardcoded to local enode for preMVP, will be in bootnodes later
 (def default-enode "enode://0f51d75c9469de0852571c4618fe151265d4930ea35f968eb1a12e69c12f7cbabed856a12b31268a825ca2c9bafa47ef665b1b17be1ab71de83338c4b7439b24@127.0.0.1:30303")
 
+;; adamb's status-cluster enode
+(def cluster-enode "enode://08d8eb6177b187049f6c97ed3f6c74fbbefb94c7ad10bafcaf4b65ce89c314dcfee0a8bc4e7a5b824dfa08b45b360cc78f34f0aff981f8386caa07652d2e601b@163.172.177.138:40404")
+
 ;; TODO(oskarth): Rewrite callback-heavy code with CSP and/or coeffects
 ;; TODO(oskarth): Memoize addPeer and markTrusted, similar to keys/get-sym-key
 ;; TODO(oskarth): Actually deal with errors, all in same cb - outside scope of this
