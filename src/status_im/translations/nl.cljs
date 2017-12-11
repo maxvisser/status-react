@@ -13,7 +13,7 @@
    :next                                  "Volgende"
    :type-a-message                        "Typ een bericht..."
    :type-a-command                        "typ een commando..."
-   :error                                 "Error"
+   :error                                 "Fout"
 
    :camera-access-error                   "Om cameratoegang te geven, ga je naar systeem instellingen en zorg je dat Status > Camera geselecteerd is."
    :photos-access-error                   "Om fototoegang te geven, ga je naar systeem instellingen en zorg je dat Status > Foto's geselecteerd is."
@@ -47,11 +47,11 @@
 
    ;messages
    :status-sending                        "Wordt verstuurd"
-   :status-pending                        "Hangende"
-   :status-sent                           "Verstuurd"
+   :status-pending                        "In afwachting"
+   :status-sent                           "Verzonden"
    :status-seen-by-everyone               "Door iedereen gezien"
    :status-seen                           "Gezien"
-   :status-delivered                      "Bezorgd"
+   :status-delivered                      "Afgeleverd"
    :status-failed                         "Mislukt"
 
    ;datetime
@@ -72,14 +72,14 @@
    :edit-profile                          "Bewerk profiel"
    :message                               "Bericht"
    :not-specified                         "Niet opgegeven"
-   :public-key                            "Openbare sleutel"
+   :public-key                            "Publieke sleutel"
    :phone-number                          "Telefoonnummer"
    :update-status                         "Wijzig je status..."
    :add-a-status                          "Voeg een status toe..."
    :status-prompt                         "Maak een status aan om mensen te laten weten wat je te bieden hebt. Je kan ook #hashtags gebruiken."
    :add-to-contacts                       "Aan contactpersonen toevoegen"
-   :in-contacts                           "In contacts"
-   :remove-from-contacts                  "Remove from contacts"
+   :in-contacts                           "In contacten"
+   :remove-from-contacts                  "Verwijder uit contacten"
    :start-conversation                    "Begin een gesprek"
    :send-transaction                      "Verstuur een transactie"
 
@@ -93,7 +93,7 @@
    :sharing-share                         "Deel..."
    :sharing-cancel                        "Annuleren"
 
-   :browsing-title                        "Browse"
+   :browsing-title                        "Surf"
    :browsing-open-in-web-browser          "Open in een web browser"
    :browsing-cancel                       "Annuleren"
 
@@ -113,8 +113,8 @@
    :debug-enabled                         "Debug-server is gelanceerd! Je kan nu *status-dev-cli scan* uitvoeren om de server te vinden vanaf je computer op het zelfde netwerk."
 
    ;phone types
-   :phone-e164                            "International 1"
-   :phone-international                   "International 2"
+   :phone-e164                            "Internationaal 1"
+   :phone-international                   "Internationaal 2"
    :phone-national                        "Nationaal"
    :phone-significant                     "Significant"
 
@@ -130,7 +130,7 @@
    :public-group-topic                    "Onderwerp"
 
    ;discover
-   :discover                              "Ontdekking"
+   :discover                              "Verkennen"
    :none                                  "Geen"
    :search-tags                           "Typ hier jouw zoektags"
    :popular-tags                          "Populaire tags"
@@ -144,24 +144,24 @@
    ;contacts
    :contacts                              "Contactpersonen"
    :new-contact                           "Nieuwe contactpersonen"
-   :delete-contact                        "Delete contact"
-   :delete-contact-confirmation           "This contact will be removed from your contacts"
-   :remove-from-group                     "Remove from group"
-   :edit-contacts                         "Edit contacts"
-   :search-contacts                       "Search contacts"
+   :delete-contact                        "Verwijder contact"
+   :delete-contact-confirmation           "Deze contactpersoon zal worden verwijderd uit uw contacten"
+   :remove-from-group                     "Verwijder van groep"
+   :edit-contacts                         "Bewerk contacten"
+   :search-contacts                       "Zoek contacten"
    :contacts-group-new-chat               "Start nieuwe chat"
-   :choose-from-contacts                  "Choose from contacts"
+   :choose-from-contacts                  "Kies uit contacten"
    :no-contacts                           "Nog geen contactpersonen"
    :show-qr                               "Toon QR"
-   :enter-address                         "Enter address"
-   :more                                  "more"
+   :enter-address                         "Vul adres in"
+   :more                                  "meer"
 
    ;group-settings
    :remove                                "Verwijderen"
    :save                                  "Opslaan"
-   :delete                                "Delete"
+   :delete                                "Wissen"
    :clear-history                         "Wis geschiedenis"
-   :mute-notifications                    "Stille notificaties"
+   :mute-notifications                    "Notificaties dempen"
    :leave-chat                            "Verlaat chat"
    :chat-settings                         "Chatinstellingen"
    :edit                                  "Bewerken"
@@ -172,11 +172,11 @@
 
    ;new-group
    :new-group                             "Nieuwe groep"
-   :reorder-groups                        "Hergroepeer groep"
+   :reorder-groups                        "Groepen ordenen"
    :edit-group                            "Bewerk groep"
    :delete-group                          "Verwijder groep"
-   :delete-group-confirmation             "Deze groep zal worden verwijderd van jouw groepen. Dit heeft geen effect op je contacten."
-   :delete-group-prompt                   "This will not affect contacts"
+   :delete-group-confirmation             "Deze groep zal verwijderd worden uit jouw groepen. Dit heeft geen effect op je contacten."
+   :delete-group-prompt                   "Dit heeft geen effect op je contacten."
    :contact-s                             {:one   "contact"
                                            :other "contacten"}
 
@@ -184,17 +184,17 @@
 
    ;protocol
    :received-invitation                   "ontving chatuitnodiging"
-   :removed-from-chat                     "verwijderde jou van groepchat"
-   :left                                  "ging weg"
+   :removed-from-chat                     "verwijderde jou uit de groepchat"
+   :left                                  "heeft de groep chat verlaten"
    :invited                               "uitgenodigd"
    :removed                               "verwijderd"
-   :You                                   "Jou"
+   :You                                   "Jij"
 
    ;new-contact
    :add-new-contact                       "Voeg nieuwe contactpersoon toe"
    :scan-qr                               "QR scannen"
    :name                                  "Naam"
-   :address-explication                   "Misschien zou hier wat tekst moeten staan waarin wordt uitgelegd wat een adres is en waar je deze kunt vinden"
+   :address-explication                   "Een adres representeerd een account. Het bestaat uit 42 karakters en is te vinden in je Status profiel."
    :enter-valid-public-key                "Voer een geldig publieke sleutel in of scan een QR code"
    :contact-already-added                 "De contactpersoon is al toegevoegd"
    :can-not-add-yourself                  "Je kunt niet zelf toevoegen"
@@ -204,18 +204,18 @@
    :connect                               "Verbinden"
    :address                               "Adres"
    :password                              "Wachtwoord"
-   :sign-in-to-status                     "Meld u aan bij Status"
-   :sign-in                               "Meld aan"
+   :sign-in-to-status                     "Log in bij Status"
+   :sign-in                               "Inloggen"
    :wrong-password                        "Verkeerd wachtwoord"
 
    ;recover
-   :passphrase                            "Wachtzin"
+   :passphrase                            "Wachtwoordzin"
    :recover                               "Herstellen"
    :twelve-words-in-correct-order         "12 woorden in goede volgorde"
 
    ;accounts
    :recover-access                        "Toegang herstellen"
-   :create-new-account                    "Maake een nieuwe account aan"
+   :create-new-account                    "Maak een nieuwe account aan"
 
    ;wallet-qr-code
    :done                                  "Klaar"
