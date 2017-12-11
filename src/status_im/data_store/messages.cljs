@@ -9,15 +9,12 @@
 (defn- command-type?
   [type]
   (contains?
-   #{constants/content-type-command constants/content-type-command-request
-     constants/content-type-wallet-request constants/content-type-wallet-command}
+   #{constants/content-type-command constants/content-type-command-request}
    type))
 
 (def default-values
   {:outgoing       false
    :to             nil
-   :same-author    false
-   :same-direction false
    :preview        nil})
 
 (defn exists? [message-id]
@@ -31,10 +28,6 @@
   (when-let [{:keys [content-type content] :as message} (get-by-id message-id)]
     (when (command-type? content-type)
       (reader/read-string content))))
-
-(defn get-count-by-chat-id
-  [chat-id]
-  (data-store/get-count-by-chat-id chat-id))
 
 (defn get-by-chat-id
   ([chat-id]

@@ -1,16 +1,14 @@
 (ns status-im.chat.subs
-  (:require [re-frame.core :refer [reg-sub dispatch subscribe path]]
-            [status-im.data-store.chats :as chats]
-            [status-im.chat.constants :as const]
+  (:require [re-frame.core :refer [reg-sub subscribe]]
+            [status-im.constants :as const]
+            [status-im.chat.constants :as chat-const]
             [status-im.chat.models.input :as input-model]
             [status-im.chat.models.commands :as commands-model]
             [status-im.chat.utils :as chat-utils]
             [status-im.chat.views.input.utils :as input-utils]
-            [status-im.constants :refer [response-suggesstion-resize-duration
-                                         content-type-status
-                                         console-chat-id]]
             [status-im.commands.utils :as commands-utils]
-            [status-im.utils.platform :refer [platform-specific ios?]]
+            [status-im.utils.datetime :as time]
+            [status-im.utils.platform :refer [ios?]]
             [taoensso.timbre :as log]
             [clojure.string :as str]))
 
@@ -52,11 +50,17 @@
     (if ios? kb-height 0)))
 
 (reg-sub
-  :get-current-chat
+  :get-chat
   :<- [:chats]
-  :<- [:get-current-chat-id]
-  (fn [[chats id]]
-    (get chats id)))
+  (fn [chats [_ chat-id]]
+    (get chats chat-id)))
+
+(reg-sub
+  :get-current-chat
+  (fn [_]
+    (let [current-chat-id (subscribe [:get-current-chat-id])]
+      (subscribe [:get-chat @current-chat-id])))
+  identity)
 
 (reg-sub
   :chat
@@ -64,6 +68,70 @@
   :<- [:get-current-chat-id]
   (fn [[chats id] [_ k chat-id]]
     (get-in chats [(or chat-id id) k])))
+
+(defn message-datemark-groups
+  "Transforms map of messages into sequence of `[datemark messages]` tuples, where
+  messages with particular datemark are sorted according to their `:clock-value` and
+  tuples themeselves are sorted according to the highest `:clock-value` in the messages."
+  [id->messages]
+  (let [datemark->messages (transduce (comp (map second)
+                                            (filter :show?)
+                                            (map (fn [{:keys [timestamp] :as msg}]
+                                                   (assoc msg :datemark (time/day-relative timestamp)))))
+                                      (completing (fn [acc {:keys [datemark] :as msg}]
+                                                    (update acc datemark conj msg)))
+                                      {}
+                                      id->messages)]
+    (->> datemark->messages
+         (map (fn [[datemark messages]]
+                [datemark (sort-by :clock-value > messages)]))
+         (sort-by (comp :clock-value first second) >))))
+
+(reg-sub
+  :get-chat-message-datemark-groups
+  (fn [[_ chat-id]]
+    (subscribe [:get-chat chat-id]))
+  (fn [{:keys [messages]}]
+    (message-datemark-groups messages)))
+
+(defn messages-stream
+  "Transforms message-datemark-groups into flat sequence of messages interspersed with
+  datemark messages.
+  Additionaly enhances the messages in message sequence with derived stream context information,
+  like `:same-author?`, `:same-direction?` and `:last-outgoing?` flags + contact info/status
+  message for the last dategroup."
+  [[[last-datemark last-messages] :as message-datemark-groups]]
+  (let [{last-outgoing-message-id :message-id} (->> message-datemark-groups
+                                                    (mapcat second)
+                                                    (filter :outgoing)
+                                                    first)]
+    ;; TODO janherich: why the heck do we display contact user info/status in chat as a message in stream ?
+    ;; This makes no sense, user wants to have this information always available, not as something which
+    ;; scrolls with message stream
+    (->> (conj (rest message-datemark-groups)
+               [last-datemark (conj (into [] last-messages) {:content-type const/content-type-status})])
+         (mapcat (fn [[datemark messages]]
+                   (let [prepared-messages (into []
+                                                 (map (fn [{:keys [message-id] :as message} previous-message]
+                                                        (assoc message
+                                                               :same-author? (= (:from message)
+                                                                                (:from previous-message))
+                                                               :same-direction? (= (:outgoing message)
+                                                                                   (:outgoing previous-message))
+                                                               :last-outgoing? (= message-id
+                                                                                  last-outgoing-message-id)))
+                                                      messages
+                                                      (concat (rest messages) '(nil))))]
+                     (conj prepared-messages {:type :datemark
+                                              :value datemark})))))))
+
+(reg-sub
+  :get-current-chat-messages
+  (fn [_]
+    (let [current-chat-id (subscribe [:get-current-chat-id])]
+      (subscribe [:get-chat-message-datemark-groups @current-chat-id])))
+  (fn [message-datemark-groups]
+    (messages-stream message-datemark-groups)))
 
 (reg-sub
   :get-commands-for-chat
@@ -202,17 +270,11 @@
   (fn [contacts [_ id]]
     (:photo-path (contacts id))))
 
-;; TODO janherich: this is just bad and horribly ineffecient (always sorting to get last msg +
-;; stale `:last-message` in app-db) refactor messages data-model to properly index them ASAP
 (reg-sub
   :get-last-message
-  :<- [:chats]
-  (fn [chats [_ chat-id]]
-    (let [{:keys [messages]} (get chats chat-id)]
-      (->> messages
-           (sort-by :clock-value >)
-           (filter :show?)
-           first))))
+  (fn [[_ chat-id]]
+    (subscribe [:get-chat-message-datemark-groups chat-id]))
+  (comp first second first))
 
 (reg-sub
   :get-message-short-preview-markup
@@ -250,15 +312,6 @@
   (fn [db [_ key type]]
     (let [chat-id (subscribe [:get-current-chat-id])]
       (get-in db [:chat-animations @chat-id key type]))))
-
-(reg-sub
-  :get-chat-last-outgoing-message
-  :<- [:chats]
-  (fn [chats [_ chat-id]]
-    (->> (:messages (get chats chat-id))
-         (filter :outgoing)
-         (sort-by :clock-value >)
-         first)))
 
 (reg-sub
   :get-message-preview-markup

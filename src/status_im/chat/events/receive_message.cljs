@@ -65,9 +65,10 @@
                                (model/add-chat cofx chat-identifier))
             command-request? (= content-type const/content-type-command-request)
             command          (:command content)
-            enriched-message (cond-> (assoc (chat-utils/check-author-direction db chat-identifier message)
-                                            :chat-id chat-identifier
-                                            :timestamp (or timestamp now)
+            enriched-message (cond-> (assoc message
+                                            :chat-id     chat-identifier
+                                            :timestamp   (or timestamp now)
+                                            :show?       true
                                             :clock-value (clocks/receive
                                                           clock-value
                                                           (get-last-clock-value chat-identifier)))

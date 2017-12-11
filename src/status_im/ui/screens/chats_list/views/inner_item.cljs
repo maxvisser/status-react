@@ -13,7 +13,6 @@
             [status-im.utils.gfycat.core :refer [generate-gfy]]
             [status-im.constants :refer [console-chat-id
                                          content-type-command
-                                         content-type-wallet-command
                                          content-type-command-request]]
             [taoensso.timbre :as log]
             [reagent.core :as r]))

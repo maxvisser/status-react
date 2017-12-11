@@ -20,8 +20,7 @@
             [status-im.chat.models.commands :as commands]
             [status-im.chat.styles.message.message :as st]
             [status-im.chat.styles.message.command-pill :as pill-st]
-            [status-im.chat.views.message.request-message :refer [message-content-command-request]]
-            [status-im.chat.views.message.datemark :refer [chat-datemark]]
+            [status-im.chat.views.message.request-message :refer [message-content-command-request]] 
             [status-im.react-native.resources :as res]
             [status-im.constants :refer [console-chat-id
                                          text-content-type
@@ -50,21 +49,14 @@
                   (or incoming-name "Unknown contact"))]
     [text {:style st/author} name]))
 
-(defview message-content-status
-  [{:keys [messages-count content datemark]}]
-  (letsubs [chat-id    [:chat :chat-id]
-            group-chat [:chat :group-id]
-            name       [:chat :name]
-            color      [:chat :color]
-            public-key [:chat :public-key]
-            members    [:current-chat-contacts]]
-    (let [{:keys [status]} (if group-chat
-                             {:photo-path  nil
-                              :status      nil
-                              :last-online 0}
+(defview message-content-status []
+  (letsubs [{:keys [chat-id group-id name color public-key]} [:get-current-chat] 
+            members [:current-chat-contacts]]
+    (let [{:keys [status]} (if group-id
+                             {:status nil}
                              (first members))]
       [view st/status-container
-       [chat-icon-message-status chat-id group-chat name color false]
+       [chat-icon-message-status chat-id group-id name color false]
        [text {:style           st/status-from
               :font            :default
               :number-of-lines 1}
@@ -72,14 +64,10 @@
           (generate-gfy public-key)
           (or (get-contact-translated chat-id :name name)
               (label :t/chat-name)))]
-       (when (or status content)
+       (when status
          [text {:style st/status-text
                 :font  :default}
-          (or status content)])
-       (if (> messages-count 1)
-         [view st/message-datemark
-          [chat-datemark datemark]]
-         [view st/message-empty-spacing])])))
+          status])])))
 
 (defn message-content-audio [_]
   [view st/audio-container
@@ -93,22 +81,9 @@
            :font  :default}
      "03:39"]]])
 
-(defn wallet-command-preview
-  [{{:keys [name]} :contact-chat
-    :keys          [contact-address params outgoing? current-chat-id]}]
-  (let [{:keys [recipient amount]} (walk/keywordize-keys params)]
-    [text {:style st/command-text
-           :font  :default}
-     (label :t/chat-send-eth {:amount amount})]))
-
-(defn wallet-command? [content-type]
-  (#{c/content-type-wallet-command c/content-type-wallet-request} content-type))
-
 (defn command-preview
-  [{:keys [params preview content-type] :as message}]
-  (cond
-    (wallet-command? content-type)
-    (wallet-command-preview message)
+  [{:keys [params preview] :as message}]
+  (cond 
 
     preview preview
 
@@ -122,8 +97,7 @@
 (defview message-content-command
   [{:keys [message-id content content-type chat-id to from outgoing] :as message}]
   (letsubs [command [:get-command (:content-command-ref content)]
-            current-chat-id [:get-current-chat-id]
-            contact-chat [:get-in [:chats (if outgoing to from)]]
+            current-chat-id [:get-current-chat-id] 
             preview [:get-message-preview message-id]]
     (let [{:keys     [name type]
            icon-path :icon} command]
@@ -137,17 +111,11 @@
        (when icon-path
          [view st/command-image-view
           [icon icon-path st/command-image]])
-       [command-preview {:command         (:name command)
-                         :content-type    content-type
-                         :params          (:params content)
-                         :outgoing?       outgoing
-                         :preview         preview
-                         :contact-chat    contact-chat
-                         :contact-address (if outgoing to from)
-                         :current-chat-id current-chat-id}]])))
+       [command-preview {:content-type    content-type 
+                         :preview         preview}]])))
 
 (defn message-view
-  [{:keys [same-author index group-chat] :as message} content]
+  [{:keys [group-chat] :as message} content]
   [view (st/message-view message)
    (when group-chat [message-author-name message])
    content])
@@ -161,10 +129,10 @@
 (defn get-style [string]
   (->> replacements
        (into [] (comp
-                  (map first)
-                  (map #(vector % (re-pattern %)))
-                  (drop-while (fn [[_ regx]] (not (re-matches regx string))))
-                  (take 1)))
+                 (map first)
+                 (map #(vector % (re-pattern %)))
+                 (drop-while (fn [[_ regx]] (not (re-matches regx string))))
+                 (take 1)))
        ffirst
        replacements))
 
@@ -176,13 +144,13 @@
                           [nil]
                           general-text)
           styled-text   (vec (map-indexed
-                               (fn [idx string]
-                                 (let [style (get-style string)]
-                                   [text
-                                    {:key   (str idx "_" string)
-                                     :style style}
-                                    (subs string 1 (dec (count string)))]))
-                               (re-seq regx string)))
+                              (fn [idx string]
+                                (let [style (get-style string)]
+                                  [text
+                                   {:key   (str idx "_" string)
+                                    :style style}
+                                   (subs string 1 (dec (count string)))]))
+                              (re-seq regx string)))
           styled-text'  (if (> (count general-text)
                                (count styled-text))
                           (conj styled-text nil)
@@ -209,11 +177,6 @@
   [wrapper message
    [message-view message [message-content-command-request message]]])
 
-(defmethod message-content c/content-type-wallet-request
-  [wrapper message]
-  [wrapper message
-   [message-view message [message-content-command-request message]]])
-
 (defmethod message-content text-content-type
   [wrapper message]
   [wrapper message [text-message message]])
@@ -224,14 +187,9 @@
 
 (defmethod message-content content-type-status
   [_ message]
-  [message-content-status message])
+  [message-content-status])
 
 (defmethod message-content content-type-command
-  [wrapper message]
-  [wrapper message
-   [message-view message [message-content-command message]]])
-
-(defmethod message-content c/content-type-wallet-command
   [wrapper message]
   [wrapper message
    [message-view message [message-content-command message]]])
@@ -260,9 +218,9 @@
        [text {:style st/delivery-text
               :font  :default}
         (message-status-label
-          (if seen-by-everyone?
-            :seen-by-everyone
-            status))]]
+         (if seen-by-everyone?
+           :seen-by-everyone
+           status))]]
       [touchable-highlight
        {:on-press (fn []
                     (dispatch [:show-message-details {:message-status status
@@ -314,21 +272,20 @@
              :style  st/photo}]]))
 
 (defn message-body
-  [{:keys [last-outgoing? message-type same-author from index outgoing] :as message} content]
-  (let [delivery-status :seen-by-everyone]
-    [view st/group-message-wrapper
-     [view (st/message-body message)
-      [view st/message-author
-       (when (or (= index 1) (not same-author))
-         (if outgoing
-           [my-photo from]
-           [member-photo from]))]
-      [view (st/group-message-view message)
-       content
-       (when last-outgoing?
-         (if (= (keyword message-type) :group-user-message)
-           [group-message-delivery-status message]
-           [message-delivery-status message]))]]]))
+  [{:keys [last-outgoing? message-type same-author? from outgoing] :as message} content]
+  [view st/group-message-wrapper
+   [view (st/message-body message)
+    [view st/message-author
+     (when-not same-author?
+       (if outgoing
+         [my-photo from]
+         [member-photo from]))]
+    [view (st/group-message-view message)
+     content
+     (when last-outgoing?
+       (if (= (keyword message-type) :group-user-message)
+         [group-message-delivery-status message]
+         [message-delivery-status message]))]]])
 
 (defn message-container-animation-logic [{:keys [to-value val callback]}]
   (fn [_]

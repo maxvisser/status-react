@@ -91,6 +91,7 @@
 
 (defn- extract-last-phone-number [chats]
   (let [phone-message (->> (get-in chats ["console" :messages])
+                           (map second)
                            (some (fn [{:keys [type content] :as message}]
                                    (when (and (= type :response)
                                               (= (:command content) "phone"))

@@ -90,8 +90,7 @@
             hidden-params (->> (:params command)
                                (filter :hidden)
                                (map :name))
-            command'      (->> (prepare-command current-public-key chat-id clock-value request content)
-                               (cu/check-author-direction db chat-id))]
+            command'      (prepare-command current-public-key chat-id clock-value request content)]
         (dispatch [:update-message-overhead! chat-id network-status])
         (dispatch [:set-chat-ui-props {:sending-in-progress? false}])
         (dispatch [::send-command! add-to-chat-id (assoc params :command command') hidden-params])
@@ -168,17 +167,15 @@
     (fn [{:keys [network-status] :as db} [_ {:keys [chat-id identity message] :as params}]]
       (let [{:keys [group-chat public?]} (get-in db [:chats chat-id])
             clock-value (messages/get-last-clock-value chat-id)
-            message'    (cu/check-author-direction
-                          db chat-id
-                          {:message-id   (random/id)
-                           :chat-id      chat-id
-                           :content      message
-                           :from         identity
-                           :content-type text-content-type
-                           :outgoing     true
-                           :timestamp    (datetime/now-ms)
-                           :clock-value  (clocks/send clock-value)
-                           :show?        true})
+            message'    {:message-id   (random/id)
+                         :chat-id      chat-id
+                         :content      message
+                         :from         identity
+                         :content-type text-content-type
+                         :outgoing     true
+                         :timestamp    (datetime/now-ms)
+                         :clock-value  (clocks/send clock-value)
+                         :show?        true}
             message''   (cond-> message'
                                 (and group-chat public?)
                                 (assoc :group-id chat-id :message-type :public-group-user-message)

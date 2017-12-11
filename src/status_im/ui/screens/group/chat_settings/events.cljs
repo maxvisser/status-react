@@ -171,5 +171,5 @@
 (register-handler-fx
   :clear-history
   (fn [{{:keys [current-chat-id] :as db} :db} _]
-    {:db (assoc-in db [:chats current-chat-id :messages] '())
+    {:db (assoc-in db [:chats current-chat-id :messages] {})
      ::chat-events/delete-messages current-chat-id}))
